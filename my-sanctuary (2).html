@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Sanctuary</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  /* ── Palette ── */
+  --bg:       #f8f8f6;       /* page background                    */
+  --parchment:#f2efe6;       /* slightly warmer surface             */
+  --sand:     #E3DBBB;       /* warm tan accent                     */
+  --sand-l:   #ede8d0;       /* lighter tan for hovers              */
+  --moss:     #AEB784;       /* sage green                          */
+  --moss-d:   #7a8456;       /* deeper moss                         */
+  --olive:    #41431B;       /* darkest olive — main text           */
+  --olive-m:  #6b6e34;       /* medium olive                        */
+  --olive-s:  #9a9d5a;       /* soft olive                          */
+  --text:     #2f2f1e;       /* near-black warm text                */
+  --text-s:   #5a5a3a;       /* secondary text                      */
+  --text-m:   #8a8a62;       /* muted text                          */
+  --border:   rgba(174,183,132,0.35);
+  --border-s: rgba(174,183,132,0.55);
+  --gold:     #b09a50;
+  --clay:     #b07850;
+  --r:12px;--rs:8px;
+}
+
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;}
+
+/* subtle grain texture via SVG */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");opacity:1;pointer-events:none;z-index:0;}
+
+.app{position:relative;z-index:1;display:flex;height:100vh;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+.sb{width:256px;min-width:256px;background:var(--parchment);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--sand) transparent;}
+.sb::-webkit-scrollbar{width:4px;}.sb::-webkit-scrollbar-thumb{background:var(--sand);border-radius:4px;}
+
+.sb-top{padding:26px 20px 18px;text-align:center;border-bottom:1px solid var(--border);}
+.avatar{width:66px;height:66px;border-radius:50%;background:linear-gradient(135deg,var(--sand),var(--moss));border:2px solid var(--moss);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:26px;cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;overflow:hidden;box-shadow:0 2px 8px rgba(65,67,27,0.12);}
+.avatar:hover{transform:scale(1.05);box-shadow:0 4px 16px rgba(65,67,27,0.18);}
+.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.sb-name{font-family:'Lora',serif;font-size:16px;font-weight:600;color:var(--olive);margin-bottom:2px;}
+.sb-tag{font-size:11px;color:var(--text-m);font-style:italic;line-height:1.4;}
+.sb-edit{margin-top:7px;font-size:11px;color:var(--moss-d);cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
+.sb-edit:hover{color:var(--olive);}
+
+.sb-sec{padding:13px 16px 5px;}
+.sb-lbl{font-size:9px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-m);margin-bottom:7px;padding-left:4px;}
+
+.nav{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:var(--rs);cursor:pointer;color:var(--text-s);font-size:13px;transition:all 0.15s;margin-bottom:2px;}
+.nav:hover{background:var(--sand-l);color:var(--olive);}
+.nav.on{background:var(--sand);color:var(--olive);font-weight:500;}
+.ni{font-size:14px;width:18px;text-align:center;}
+
+/* Mini calendar */
+.mcal{padding:12px 16px 8px;}
+.mch{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+.mcn{font-family:'Lora',serif;font-size:12.5px;font-weight:600;color:var(--olive);}
+.mca{background:none;border:none;cursor:pointer;color:var(--text-m);font-size:14px;padding:2px 5px;border-radius:4px;}
+.mca:hover{color:var(--olive);background:var(--sand-l);}
+.cg{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;}
+.cdn{font-size:9px;color:var(--text-m);text-align:center;padding:3px 0;font-weight:500;}
+.cd{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:10.5px;border-radius:50%;cursor:pointer;color:var(--text-s);transition:all 0.15s;position:relative;flex-direction:column;}
+.cd:hover{background:var(--sand-l);}
+.cd.he::after{content:'';width:3px;height:3px;background:var(--moss-d);border-radius:50%;position:absolute;bottom:1px;}
+.cd.td{background:var(--olive);color:#fff;font-weight:500;}
+.cd.om{color:var(--text-m);}
+.cd.sl{background:var(--sand);color:var(--olive);}
+
+/* Sidebar quick items */
+.qi{display:flex;align-items:center;gap:8px;padding:5px 16px;font-size:12px;color:var(--text-s);border-bottom:1px solid var(--border);}
+.qi:last-child{border:none;}
+.qc{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--moss);flex-shrink:0;cursor:pointer;transition:all 0.15s;}
+.qc.dn{background:var(--moss);border-color:var(--moss);}
+.qb{background:var(--sand);border-radius:4px;height:3px;margin:2px 0;}
+.qbf{height:3px;border-radius:4px;background:var(--gold);}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.top{display:flex;align-items:center;justify-content:space-between;padding:14px 26px;background:rgba(248,248,246,0.92);border-bottom:1px solid var(--border);backdrop-filter:blur(8px);flex-shrink:0;}
+.tt{font-family:'Lora',serif;font-size:19px;font-weight:600;color:var(--olive);}
+.td2{font-size:11.5px;color:var(--text-m);margin-top:1px;}
+.bts{display:flex;gap:8px;}
+.btn{padding:7px 16px;border-radius:40px;border:1px solid var(--border-s);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;transition:all 0.15s;background:transparent;color:var(--text-s);}
+.btn:hover{background:var(--sand-l);border-color:var(--moss);color:var(--olive);}
+.btn.pr{background:var(--olive);border-color:var(--olive);color:#fff;}
+.btn.pr:hover{background:var(--olive-m);}
+.ibtn{padding:5px 9px;border-radius:6px;border:1px solid var(--border);cursor:pointer;background:transparent;color:var(--text-m);font-size:13px;transition:all 0.15s;}
+.ibtn:hover{background:var(--sand-l);color:var(--olive);}
+
+/* ── PAGES ── */
+.pg{display:none;flex:1;overflow-y:auto;padding:24px;scrollbar-width:thin;scrollbar-color:var(--sand) transparent;}
+.pg::-webkit-scrollbar{width:5px;}.pg::-webkit-scrollbar-thumb{background:var(--sand);border-radius:4px;}
+.pg.on{display:block;animation:fu 0.25s ease;}
+@keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── ABOUT PAGE ── */
+.about-hero{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:26px;margin-bottom:22px;display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap;box-shadow:0 1px 6px rgba(65,67,27,0.06);}
+.about-ava{width:96px;height:96px;min-width:96px;border-radius:50%;border:3px solid var(--moss);background:var(--sand-l);display:flex;align-items:center;justify-content:center;font-size:38px;cursor:pointer;overflow:hidden;transition:border-color 0.2s;}
+.about-ava:hover{border-color:var(--olive);}
+.about-ava img{width:100%;height:100%;object-fit:cover;display:none;}
+.about-name{font-family:'Lora',serif;font-size:22px;font-weight:600;color:var(--olive);margin-bottom:4px;}
+.about-bio{font-size:13.5px;color:var(--text-s);line-height:1.8;margin-bottom:10px;}
+.about-meta{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--text-m);}
+.about-meta span{color:var(--olive-m);}
+.about-sec{font-family:'Lora',serif;font-size:13.5px;font-weight:600;color:var(--gold);margin:22px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;}
+.pcard{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:16px;transition:all 0.2s;box-shadow:0 1px 4px rgba(65,67,27,0.05);}
+.pcard:hover{border-color:var(--border-s);box-shadow:0 3px 12px rgba(65,67,27,0.09);}
+.pcard-photos{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap;}
+.pcp{width:56px;height:56px;border-radius:var(--rs);object-fit:cover;border:2px solid var(--border);cursor:pointer;transition:transform 0.15s;}
+.pcp:hover{transform:scale(1.06);}
+.pcp-add{width:56px;height:56px;border-radius:var(--rs);border:2px dashed var(--border-s);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--moss-d);font-size:20px;background:var(--bg);transition:all 0.15s;}
+.pcp-add:hover{border-color:var(--moss);background:var(--sand-l);}
+.pcard-name{font-family:'Lora',serif;font-size:14.5px;font-weight:600;color:var(--olive);margin-bottom:2px;}
+.pcard-role{font-size:10.5px;color:var(--gold);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:7px;}
+.pcard-note{font-size:12px;color:var(--text-s);line-height:1.6;}
+.pcard-btns{display:flex;gap:5px;margin-top:10px;}
+.pc-btn{font-size:11px;padding:4px 9px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text-m);cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif;}
+.pc-btn:hover{background:var(--sand-l);color:var(--olive);border-color:var(--border-s);}
+.pc-btn.del:hover{background:#fff0ec;color:var(--clay);border-color:rgba(176,120,80,0.3);}
+.add-card{border-radius:var(--r);border:2px dashed var(--border-s);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;cursor:pointer;color:var(--text-m);font-size:13px;transition:all 0.15s;background:transparent;min-height:140px;padding:16px;}
+.add-card:hover{border-color:var(--moss);color:var(--olive);background:var(--sand-l);}
+
+/* ── DIARY ── */
+.dl{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start;}
+.ec{background:#fff;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s;box-shadow:0 1px 6px rgba(65,67,27,0.06);}
+.ec:hover{border-color:var(--border-s);box-shadow:0 3px 16px rgba(65,67,27,0.09);}
+.eh{padding:18px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;}
+.edn{font-family:'Lora',serif;font-size:30px;font-weight:600;color:var(--olive);line-height:1;}
+.edf{font-size:11.5px;color:var(--text-m);margin-top:3px;}
+.emood{font-size:22px;cursor:pointer;user-select:none;}
+.mpp{background:#fff;border:1px solid var(--border-s);border-radius:var(--rs);padding:8px 12px;display:flex;gap:7px;margin-top:6px;flex-wrap:wrap;max-width:210px;box-shadow:0 2px 8px rgba(65,67,27,0.08);}
+.mo{cursor:pointer;transition:transform 0.15s;font-size:16px;}.mo:hover{transform:scale(1.25);}
+.eb{padding:18px 22px;}
+.eti{width:100%;border:none;outline:none;font-family:'Lora',serif;font-size:18px;font-weight:600;color:var(--olive);background:transparent;margin-bottom:10px;}
+.eti::placeholder{color:var(--text-m);}
+.eci{width:100%;min-height:200px;border:none;outline:none;resize:none;font-family:'DM Sans',sans-serif;font-size:13.5px;line-height:1.85;color:var(--text-s);background:transparent;}
+.eci::placeholder{color:var(--text-m);}
+.ep{padding:0 22px 18px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.pt{width:76px;height:76px;border-radius:var(--rs);object-fit:cover;border:2px solid var(--border);cursor:pointer;transition:transform 0.2s,border-color 0.2s;}
+.pt:hover{transform:scale(1.05);border-color:var(--moss);}
+.pa{width:76px;height:76px;border-radius:var(--rs);border:2px dashed var(--border-s);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--moss-d);font-size:22px;transition:all 0.15s;background:var(--bg);}
+.pa:hover{border-color:var(--moss);background:var(--sand-l);}
+.ef{padding:12px 22px;border-top:1px solid var(--border);display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+.tc{padding:3px 10px;border-radius:20px;background:var(--bg);color:var(--text-m);font-size:11px;cursor:pointer;border:1px solid var(--border);transition:all 0.15s;}
+.tc:hover,.tc.on{background:var(--sand);color:var(--olive);border-color:var(--moss);}
+.sh{font-family:'Lora',serif;font-size:12px;font-weight:600;color:var(--gold);margin-bottom:9px;padding-bottom:5px;border-bottom:1px solid var(--border);}
+.pe{background:#fff;border-radius:var(--rs);border:1px solid var(--border);padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:all 0.15s;box-shadow:0 1px 3px rgba(65,67,27,0.04);}
+.pe:hover{border-color:var(--border-s);box-shadow:0 2px 10px rgba(65,67,27,0.08);}
+.ped{font-size:10.5px;color:var(--text-m);margin-bottom:3px;}
+.pet{font-family:'Lora',serif;font-size:14px;font-weight:600;color:var(--olive);margin-bottom:5px;}
+.pep{font-size:11.5px;color:var(--text-s);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.wc{font-size:10.5px;color:var(--text-m);text-align:right;padding:0 22px 10px;}
+.srch{width:100%;padding:8px 13px;border:1px solid var(--border);border-radius:30px;background:#fff;color:var(--text);font-family:'DM Sans',sans-serif;font-size:12.5px;outline:none;margin-bottom:14px;}
+.srch:focus{border-color:var(--moss);}
+.srch::placeholder{color:var(--text-m);}
+
+/* ── TODO PAGE (2-col layout) ── */
+.todo-layout{display:grid;grid-template-columns:1fr 280px;gap:20px;align-items:start;}
+
+/* Date nav */
+.tdn{display:flex;align-items:center;gap:10px;margin-bottom:20px;background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;box-shadow:0 1px 4px rgba(65,67,27,0.05);}
+.tda{background:none;border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--text-m);font-size:18px;padding:3px 10px;transition:all 0.15s;line-height:1;}
+.tda:hover{background:var(--sand-l);border-color:var(--moss);color:var(--olive);}
+.tdc{flex:1;text-align:center;}
+.tdd{font-family:'Lora',serif;font-size:17px;font-weight:600;color:var(--olive);}
+.tdf{font-size:11px;color:var(--text-m);margin-top:2px;}
+.tdtb{font-size:11px;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text-m);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.tdtb:hover{background:var(--sand);color:var(--olive);border-color:var(--moss);}
+
+/* Task list */
+.tfl{max-width:100%;}
+.tsth{font-family:'Lora',serif;font-size:13px;font-weight:600;color:var(--olive);margin:16px 0 8px;display:flex;align-items:center;gap:8px;}
+.tsth::after{content:'';flex:1;height:1px;background:var(--border);}
+.tfi{display:flex;align-items:center;gap:10px;padding:11px 14px;background:#fff;border-radius:var(--rs);border:1px solid var(--border);margin-bottom:6px;transition:all 0.15s;box-shadow:0 1px 3px rgba(65,67,27,0.04);}
+.tfi:hover{border-color:var(--border-s);box-shadow:0 2px 8px rgba(65,67,27,0.07);}
+.tfc{width:17px;height:17px;border-radius:50%;border:1.5px solid var(--moss);cursor:pointer;flex-shrink:0;background:transparent;transition:all 0.15s;display:flex;align-items:center;justify-content:center;font-size:9px;}
+.tfc.dn{background:var(--moss);border-color:var(--moss);color:#fff;}
+.tft{flex:1;font-size:13px;color:var(--text-s);}
+.tft.dn{text-decoration:line-through;color:var(--text-m);}
+.tp{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500;white-space:nowrap;}
+.tp.high{background:#fff0ec;color:var(--clay);}
+.tp.med{background:#faf3e0;color:var(--gold);}
+.tp.low{background:rgba(174,183,132,0.2);color:var(--moss-d);}
+
+/* Inline add task row */
+.add-task-row{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--bg);border-radius:var(--rs);border:1.5px dashed var(--border-s);margin-top:8px;transition:all 0.15s;}
+.add-task-row:focus-within{border-color:var(--moss);background:#fff;}
+.add-task-input{flex:1;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:transparent;}
+.add-task-input::placeholder{color:var(--text-m);}
+.add-task-sel{border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--text-m);background:transparent;cursor:pointer;}
+.add-task-btn{padding:4px 12px;border-radius:20px;border:none;background:var(--olive);color:#fff;font-size:11.5px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.add-task-btn:hover{background:var(--olive-m);}
+
+/* ── WEEKLY PLANNER ── */
+.week-panel{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:0 1px 6px rgba(65,67,27,0.06);position:sticky;top:0;}
+.week-header{font-family:'Lora',serif;font-size:13.5px;font-weight:600;color:var(--olive);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;}
+.week-nav{display:flex;gap:4px;}
+.wna{background:none;border:1px solid var(--border);border-radius:5px;cursor:pointer;color:var(--text-m);font-size:13px;padding:2px 7px;transition:all 0.15s;}
+.wna:hover{background:var(--sand-l);color:var(--olive);}
+.week-days{display:flex;flex-direction:column;gap:6px;}
+.wd{border-radius:var(--rs);border:1px solid var(--border);overflow:hidden;transition:border-color 0.15s;}
+.wd.today-week{border-color:var(--moss);}
+.wd-head{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--bg);cursor:pointer;transition:background 0.15s;}
+.wd-head:hover{background:var(--sand-l);}
+.wd.today-week .wd-head{background:var(--sand);}
+.wd-label{font-size:11.5px;font-weight:500;color:var(--olive);}
+.wd-date{font-size:10px;color:var(--text-m);}
+.wd-count{font-size:10px;padding:1px 6px;border-radius:10px;background:var(--sand);color:var(--olive-m);font-weight:500;}
+.wd-tasks{padding:0 10px 8px;display:flex;flex-direction:column;gap:4px;}
+.wd-task{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--text-s);padding:4px 0;border-bottom:1px solid var(--border);}
+.wd-task:last-child{border:none;}
+.wd-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.wd-dot.high{background:var(--clay);}
+.wd-dot.med{background:var(--gold);}
+.wd-dot.low{background:var(--moss);}
+.wd-task-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.wd-task-text.dn{text-decoration:line-through;color:var(--text-m);}
+.wd-add{font-size:10.5px;color:var(--moss-d);cursor:pointer;padding:5px 10px;display:block;text-align:center;opacity:0.7;}
+.wd-add:hover{opacity:1;}
+.wd-empty{font-size:11px;color:var(--text-m);font-style:italic;padding:5px 0;text-align:center;}
+
+/* ── GOALS ── */
+.gy{font-family:'Lora',serif;font-size:26px;font-weight:600;color:var(--olive);margin-bottom:5px;}
+.gsub{font-size:12.5px;color:var(--text-m);margin-bottom:22px;}
+.gg{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+.gc{background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:18px;transition:all 0.2s;box-shadow:0 1px 4px rgba(65,67,27,0.05);}
+.gc:hover{border-color:var(--border-s);box-shadow:0 3px 14px rgba(65,67,27,0.09);}
+.gcat{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;margin-bottom:7px;}
+.gcat.health{color:var(--moss-d);}.gcat.personal{color:var(--clay);}.gcat.career{color:#8a7cb0;}.gcat.fun{color:#6a9ab0;}
+.gtt{font-family:'Lora',serif;font-size:15px;font-weight:600;color:var(--olive);margin-bottom:6px;}
+.gds{font-size:11.5px;color:var(--text-s);line-height:1.6;margin-bottom:12px;}
+.gpb{background:var(--sand-l);border-radius:6px;height:5px;margin-bottom:6px;}
+.gpf{height:5px;border-radius:6px;transition:width 0.5s;}
+.gpf.health{background:var(--moss);}.gpf.personal{background:var(--clay);}.gpf.career{background:#8a7cb0;}.gpf.fun{background:#6a9ab0;}
+.gpl{display:flex;justify-content:space-between;font-size:10.5px;color:var(--text-m);margin-bottom:12px;}
+.g-acts{display:flex;gap:5px;flex-wrap:wrap;}
+.gab{font-size:11px;padding:4px 9px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--text-m);cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif;}
+.gab:hover{background:var(--sand-l);color:var(--olive);border-color:var(--border-s);}
+.gab.del:hover{background:#fff0ec;color:var(--clay);border-color:rgba(176,120,80,0.3);}
+
+/* ── NOTES ── */
+.ntbs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:18px;}
+.ntb{padding:6px 14px;border-radius:30px;font-size:12.5px;border:1px solid var(--border);cursor:pointer;color:var(--text-m);background:#fff;transition:all 0.15s;font-family:'DM Sans',sans-serif;}
+.ntb:hover{border-color:var(--moss);}
+.ntb.on{background:var(--sand);border-color:var(--moss);color:var(--olive);font-weight:500;}
+.ng{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
+.nc{border-radius:var(--r);padding:16px;cursor:pointer;transition:all 0.2s;border:1px solid var(--border);box-shadow:0 1px 4px rgba(65,67,27,0.04);}
+.nc:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(65,67,27,0.1);}
+.nc.aff{background:#f3f0fb;}.nc.rec{background:#fdf4ed;}.nc.mov{background:#f0f5fb;}.nc.gen{background:#f8f5e8;}
+.nci{font-size:20px;margin-bottom:8px;}
+.nct{font-family:'Lora',serif;font-size:13.5px;font-weight:600;color:var(--olive);margin-bottom:5px;}
+.ncp{font-size:11.5px;color:var(--text-s);line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.ncd{font-size:10px;color:var(--text-m);margin-top:8px;}
+.nadd{border-radius:var(--r);padding:16px;border:2px dashed var(--border-s);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:7px;cursor:pointer;color:var(--text-m);font-size:12.5px;transition:all 0.15s;background:transparent;min-height:140px;}
+.nadd:hover{border-color:var(--moss);color:var(--olive);background:var(--sand-l);}
+
+/* ── MODALS ── */
+.ov{position:fixed;inset:0;background:rgba(65,67,27,0.22);display:none;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(3px);}
+.ov.op{display:flex;}
+.mo2{background:#fff;border:1px solid var(--border);border-radius:16px;padding:26px;width:90%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(65,67,27,0.14);}
+.mo2 h3{font-family:'Lora',serif;font-size:18px;margin-bottom:14px;color:var(--olive);}
+.mi{width:100%;padding:9px 13px;border:1px solid var(--border);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:13.5px;color:var(--text);background:var(--bg);margin-bottom:10px;outline:none;}
+.mi:focus{border-color:var(--moss);}
+option{background:#fff;color:var(--text);}
+.mta{width:100%;padding:9px 13px;border:1px solid var(--border);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:13.5px;color:var(--text);background:var(--bg);margin-bottom:10px;outline:none;min-height:90px;resize:vertical;}
+.mta:focus{border-color:var(--moss);}
+.ml{font-size:12px;color:var(--text-m);display:block;margin-bottom:5px;}
+.mft{display:flex;justify-content:flex-end;gap:9px;margin-top:6px;}
+
+/* Photo viewer */
+.pv{position:fixed;inset:0;background:rgba(30,28,20,0.88);display:none;align-items:center;justify-content:center;z-index:200;}
+.pv.op{display:flex;}
+.pv img{max-width:90vw;max-height:90vh;border-radius:var(--r);}
+.pvc{position:absolute;top:18px;right:22px;color:rgba(248,248,246,0.7);font-size:28px;cursor:pointer;}
+.pvc:hover{color:#fff;}
+input[type=file]{display:none;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ── SIDEBAR ── -->
+<nav class="sb">
+  <div class="sb-top">
+    <div class="avatar" id="sb-ava" onclick="sp('about',document.querySelector('[data-page=about]'))" title="About Me">
+      <span id="sb-ava-emoji">🌿</span>
+      <img id="sb-ava-img" src="" alt="" style="display:none;">
+    </div>
+    <div class="sb-name" id="pn">Your Name</div>
+    <div class="sb-tag" id="pt2">"This is my quiet corner."</div>
+    <div class="sb-edit" onclick="openProfileEdit()">edit profile</div>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">Navigate</div>
+    <div class="nav" data-page="about" onclick="sp('about',this)"><span class="ni">🌸</span> About Me</div>
+    <div class="nav on" data-page="diary" onclick="sp('diary',this)"><span class="ni">📖</span> Daily Diary</div>
+    <div class="nav" data-page="todo" onclick="sp('todo',this)"><span class="ni">✅</span> To-Do List</div>
+    <div class="nav" data-page="goals" onclick="sp('goals',this)"><span class="ni">✨</span> Yearly Goals</div>
+    <div class="nav" data-page="notes" onclick="sp('notes',this)"><span class="ni">📌</span> My Notes</div>
+  </div>
+
+  <div class="mcal">
+    <div class="mch">
+      <button class="mca" onclick="changeMonth(-1)">&#8249;</button>
+      <span class="mcn" id="cmn"></span>
+      <button class="mca" onclick="changeMonth(1)">&#8250;</button>
+    </div>
+    <div class="cg" id="cg"></div>
+  </div>
+
+  <div class="sb-sec" style="padding-top:6px;"><div class="sb-lbl">Today's tasks</div></div>
+  <div id="sqt" style="padding:0 0 8px;"></div>
+  <div class="sb-sec" style="padding-top:6px;"><div class="sb-lbl">Goals</div></div>
+  <div id="sgl" style="padding:4px 16px 16px;"></div>
+</nav>
+
+<!-- ── MAIN ── -->
+<div class="main">
+  <div class="top">
+    <div><div class="tt" id="ttt">Daily Diary</div><div class="td2" id="tdt"></div></div>
+    <div class="bts">
+      <button class="btn" id="sba" style="display:none;" onclick="secondaryAction()">+ Note</button>
+      <button class="btn pr" id="pba" onclick="primaryAction()">+ New Entry</button>
+    </div>
+  </div>
+
+  <!-- ABOUT PAGE -->
+  <div class="pg" id="pg-about">
+    <div class="about-hero">
+      <div class="about-ava" id="about-ava" onclick="document.getElementById('ava-upload').click()" title="Click to change photo">
+        <span id="about-ava-emoji">🌿</span>
+        <img id="about-ava-img" src="" alt="">
+      </div>
+      <input type="file" id="ava-upload" accept="image/*" onchange="handleAvaPhoto(event)">
+      <div style="flex:1;min-width:180px;">
+        <div class="about-name" id="about-name-d">Your Name</div>
+        <div class="about-bio" id="about-bio-d">Click "Edit Profile" to write about yourself — your story, your values, what makes you, you.</div>
+        <div class="about-meta" id="about-meta-d"></div>
+        <button class="btn" style="margin-top:14px;font-size:12px;padding:6px 14px;" onclick="openProfileEdit()">✏️ Edit Profile</button>
+      </div>
+    </div>
+    <div class="about-sec">👨‍👩‍👧‍👦 Family</div><div class="pgrid" id="g-family"></div>
+    <div class="about-sec">💕 Loved Ones</div><div class="pgrid" id="g-loved"></div>
+    <div class="about-sec">🐾 Pets</div><div class="pgrid" id="g-pets"></div>
+  </div>
+
+  <!-- DIARY PAGE -->
+  <div class="pg on" id="pg-diary">
+    <div class="dl">
+      <div>
+        <div class="ec">
+          <div class="eh">
+            <div><div class="edn" id="edn"></div><div class="edf" id="edf"></div></div>
+            <div style="text-align:right">
+              <div class="emood" id="emd" onclick="toggleMoodPicker()">🌤️</div>
+              <div class="mpp" id="mpick" style="display:none">
+                <span class="mo" onclick="setMood('😊')">😊</span><span class="mo" onclick="setMood('🌤️')">🌤️</span>
+                <span class="mo" onclick="setMood('🌧️')">🌧️</span><span class="mo" onclick="setMood('🌿')">🌿</span>
+                <span class="mo" onclick="setMood('✨')">✨</span><span class="mo" onclick="setMood('🌙')">🌙</span>
+                <span class="mo" onclick="setMood('🔥')">🔥</span><span class="mo" onclick="setMood('💤')">💤</span>
+                <span class="mo" onclick="setMood('😢')">😢</span><span class="mo" onclick="setMood('🥰')">🥰</span>
+              </div>
+            </div>
+          </div>
+          <div class="eb">
+            <input class="eti" id="eti" placeholder="Give this day a title…"/>
+            <textarea class="eci" id="eci" placeholder="What's on your mind today? Write freely — this is just for you…" oninput="updateWordCount()"></textarea>
+          </div>
+          <div class="wc" id="wc">0 words</div>
+          <div class="ep" id="eph">
+            <div class="pa" onclick="document.getElementById('pfu').click()" title="Add photos">+</div>
+            <input type="file" id="pfu" accept="image/*" multiple onchange="handlePhotos(event)">
+          </div>
+          <div class="ef">
+            <span style="font-size:9px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--text-m);">Tags:</span>
+            <span class="tc" onclick="toggleTag(this,'grateful')">grateful</span>
+            <span class="tc" onclick="toggleTag(this,'dream')">dream</span>
+            <span class="tc" onclick="toggleTag(this,'memory')">memory</span>
+            <span class="tc" onclick="toggleTag(this,'milestone')">milestone</span>
+            <span class="tc" onclick="toggleTag(this,'travel')">travel</span>
+            <span class="tc" onclick="toggleTag(this,'family')">family</span>
+            <button class="btn pr" style="margin-left:auto;padding:6px 14px;font-size:12px;" onclick="saveEntry()">Save Entry</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <input class="srch" id="srch" placeholder="Search entries…" oninput="renderPastEntries()"/>
+        <div class="sh">Recent Entries</div>
+        <div id="pel"></div>
+        <div id="nem" style="color:var(--text-m);font-size:12.5px;font-style:italic;text-align:center;padding:20px 0;">Your memories will appear here ✦</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TODO PAGE -->
+  <div class="pg" id="pg-todo">
+    <div class="todo-layout">
+      <!-- left: task list -->
+      <div>
+        <div class="tdn">
+          <button class="tda" onclick="shiftDay(-1)">&#8592;</button>
+          <div class="tdc">
+            <div class="tdd" id="tdd"></div>
+            <div class="tdf" id="tdf"></div>
+          </div>
+          <button class="tdtb" onclick="jumpToday()">Today</button>
+          <button class="tda" onclick="shiftDay(1)">&#8594;</button>
+        </div>
+        <div class="tfl">
+          <div id="tss"></div>
+          <!-- Inline add task -->
+          <div class="add-task-row" id="inline-add-row">
+            <span style="color:var(--moss-d);font-size:16px;line-height:1;">+</span>
+            <input class="add-task-input" id="inline-task-input" placeholder="Add a task for this day…" onkeydown="if(event.key==='Enter')inlineAddTask()"/>
+            <select class="add-task-sel" id="inline-task-pri">
+              <option value="high">🔴</option>
+              <option value="med" selected>🟡</option>
+              <option value="low">🟢</option>
+            </select>
+            <button class="add-task-btn" onclick="inlineAddTask()">Add</button>
+          </div>
+        </div>
+      </div>
+      <!-- right: weekly planner -->
+      <div>
+        <div class="week-panel" id="week-panel">
+          <div class="week-header">
+            <span id="week-label">This Week</span>
+            <div class="week-nav">
+              <button class="wna" onclick="shiftWeek(-1)">&#8249;</button>
+              <button class="wna" onclick="shiftWeek(1)">&#8250;</button>
+            </div>
+          </div>
+          <div class="week-days" id="week-days"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GOALS PAGE -->
+  <div class="pg" id="pg-goals">
+    <div class="gy" id="goals-h"></div>
+    <div class="gsub">Things I want to grow towards this year.</div>
+    <div class="gg" id="ggl"></div>
+  </div>
+
+  <!-- NOTES PAGE -->
+  <div class="pg" id="pg-notes">
+    <div class="ntbs">
+      <button class="ntb on" onclick="filterNotes('all',this)">All</button>
+      <button class="ntb" onclick="filterNotes('aff',this)">💜 Affirmations</button>
+      <button class="ntb" onclick="filterNotes('rec',this)">🍵 Recipes</button>
+      <button class="ntb" onclick="filterNotes('mov',this)">🎬 Watch List</button>
+      <button class="ntb" onclick="filterNotes('gen',this)">📝 General</button>
+    </div>
+    <div class="ng" id="ngl"></div>
+  </div>
+</div>
+</div>
+
+<!-- MODALS -->
+<div class="ov" id="mo-en" onclick="closeModal('mo-en')">
+  <div class="mo2" onclick="event.stopPropagation()">
+    <h3 id="mo-en-h">📖 Entry</h3>
+    <div id="mec" style="font-size:13.5px;line-height:1.8;color:var(--text-s);max-height:60vh;overflow-y:auto;"></div>
+    <div class="mft" style="margin-top:16px;">
+      <button class="btn" onclick="closeModal('mo-en')">Close</button>
+      <button class="btn pr" id="med-del">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="mo-td" onclick="closeModal('mo-td')">
+  <div class="mo2" onclick="event.stopPropagation()">
+    <h3 id="mo-td-h">✅ Edit Task</h3>
+    <input class="mi" id="tnt" placeholder="Task description"/>
+    <select class="mi" id="tnp">
+      <option value="high">🔴 Urgent</option>
+      <option value="med" selected>🟡 Medium</option>
+      <option value="low">🟢 Relaxed</option>
+    </select>
+    <label class="ml">Date</label>
+    <input class="mi" id="tnd" type="date"/>
+    <div class="mft">
+      <button class="btn" onclick="closeModal('mo-td')">Cancel</button>
+      <button class="btn pr" onclick="saveTodoEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="mo-nt" onclick="closeModal('mo-nt')">
+  <div class="mo2" onclick="event.stopPropagation()">
+    <h3>📌 Note</h3>
+    <select class="mi" id="nnt"><option value="aff">💜 Affirmation</option><option value="rec">🍵 Recipe</option><option value="mov">🎬 Watch List</option><option value="gen">📝 General Note</option></select>
+    <input class="mi" id="nntl" placeholder="Title"/>
+    <textarea class="mta" id="nntc" placeholder="Write your note…"></textarea>
+    <div class="mft"><button class="btn" onclick="closeModal('mo-nt')">Cancel</button><button class="btn pr" onclick="addNote()">Save Note</button></div>
+  </div>
+</div>
+
+<div class="ov" id="mo-gl" onclick="closeModal('mo-gl')">
+  <div class="mo2" onclick="event.stopPropagation()">
+    <h3 id="mo-gl-h">✨ Goal</h3>
+    <select class="mi" id="gnc"><option value="health">🌿 Health &amp; Wellness</option><option value="personal">🌸 Personal Growth</option><option value="career">💼 Career &amp; Learning</option><option value="fun">🎨 Fun &amp; Adventure</option></select>
+    <input class="mi" id="gnt" placeholder="Goal title"/>
+    <textarea class="mta" id="gnd" placeholder="Describe your goal…" style="min-height:70px;"></textarea>
+    <label class="ml">Progress (%)</label>
+    <input class="mi" id="gnp" type="number" min="0" max="100" value="0"/>
+    <div class="mft"><button class="btn" onclick="closeModal('mo-gl')">Cancel</button><button class="btn pr" onclick="saveGoal()">Save Goal</button></div>
+  </div>
+</div>
+
+<div class="ov" id="mo-pr" onclick="closeModal('mo-pr')">
+  <div class="mo2" onclick="event.stopPropagation()">
+    <h3>🌿 Edit Profile</h3>
+    <input class="mi" id="pni" placeholder="Your name"/>
+    <input class="mi" id="pti" placeholder="Personal motto or tagline"/>
+    <textarea class="mta" id="pbi" placeholder="A little about yourself…" style="min-height:80px;"></textarea>
+    <input class="mi" id="plo" placeholder="Location (e.g. Putra Heights, Malaysia)"/>
+    <input class="mi" id="pbd" placeholder="Birthday (e.g. March 15)"/>
+    <div class="mft"><button class="btn" onclick="closeModal('mo-pr')">Cancel</button><button class="btn pr" onclick="saveProfile()">Save</button></div>
+  </div>
+</div>
+
+<div class="ov" id="mo-person" onclick="closeModal('mo-person')">
+  <div class="mo2" onclick="event.stopPropagation()">
+    <h3 id="mo-person-h">🌸 Add Person</h3>
+    <select class="mi" id="person-group"><option value="family">👨‍👩‍👧‍👦 Family</option><option value="loved">💕 Loved Ones</option><option value="pets">🐾 Pets</option></select>
+    <input class="mi" id="person-name" placeholder="Name"/>
+    <input class="mi" id="person-role" placeholder="Relationship (e.g. Mum, Best Friend, Hamster)"/>
+    <textarea class="mta" id="person-note" placeholder="What makes them special to you…" style="min-height:80px;"></textarea>
+    <div class="mft"><button class="btn" onclick="closeModal('mo-person')">Cancel</button><button class="btn pr" onclick="savePerson()">Save</button></div>
+  </div>
+</div>
+
+<div class="pv" id="pvw" onclick="this.classList.remove('op')">
+  <div class="pvc" onclick="document.getElementById('pvw').classList.remove('op')">&#10005;</div>
+  <img id="pvi" src="" alt="photo">
+</div>
+
+<script>
+// ── DATE HELPERS (local time, no UTC shift) ──
+function fmtKey(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return y+'-'+m+'-'+day;}
+function k2d(k){const[y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d);}
+function fmtFull(d){return d.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
+function fmtShort(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function fmtMD(d){return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+
+const today=new Date(), todayK=fmtKey(today);
+
+// ── STATE ──
+let S={
+  page:'diary', calYear:today.getFullYear(), calMonth:today.getMonth(),
+  selectedDate:todayK, todoDate:todayK, weekOffset:0,
+  mood:'🌤️', entries:{}, todos:[], notes:[], goals:[], tags:[], people:[],
+  profile:{name:'Your Name',tag:'"This is my quiet corner."',bio:'',location:'',birthday:'',avaPhoto:''},
+  notesFilter:'all'
+};
+
+function ls(){try{const s=localStorage.getItem('snc_v5');if(s)Object.assign(S,JSON.parse(s));}catch(e){}}
+function ss(){try{localStorage.setItem('snc_v5',JSON.stringify(S));}catch(e){}}
+
+function init(){
+  ls();
+  setSelectedDate(todayK);
+  document.getElementById('tdt').textContent=fmtFull(today);
+  document.getElementById('goals-h').textContent=today.getFullYear()+' Goals ✨';
+  renderCalendar(); renderSidebarTodos(); renderSidebarGoals();
+  renderPastEntries(); renderTodoPage(); renderWeekPlanner();
+  renderGoals(); renderNotes(); renderAbout(); syncProfile();
+}
+
+// ── NAVIGATION ──
+function sp(name,el){
+  document.querySelectorAll('.nav').forEach(n=>n.classList.remove('on'));
+  if(el)el.classList.add('on');
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pg-'+name).classList.add('on');
+  S.page=name;
+  const ts={about:'About Me',diary:'Daily Diary',todo:'To-Do List',goals:today.getFullYear()+' Goals',notes:'My Notes'};
+  document.getElementById('ttt').textContent=ts[name]||name;
+  const sba=document.getElementById('sba'),pba=document.getElementById('pba');
+  sba.style.display='none';
+  if(name==='about')pba.textContent='+ Add Person';
+  else if(name==='diary')pba.textContent='+ New Entry';
+  else if(name==='todo'){pba.style.display='none';return;}
+  else if(name==='goals')pba.textContent='+ New Goal';
+  else{sba.style.display='inline-block';sba.textContent='+ Note';pba.textContent='+ Affirmation';}
+  pba.style.display='inline-block';
+}
+function primaryAction(){
+  const p=S.page;
+  if(p==='about')openAddPerson();
+  else if(p==='diary'){setSelectedDate(todayK);S.calYear=today.getFullYear();S.calMonth=today.getMonth();renderCalendar();document.getElementById('eti').focus();}
+  else if(p==='goals')openNewGoal();
+  else{document.getElementById('nnt').value='aff';openModal('mo-nt');}
+}
+function secondaryAction(){document.getElementById('nnt').value='gen';openModal('mo-nt');}
+
+// ── CALENDAR ──
+function renderCalendar(){
+  const y=S.calYear,m=S.calMonth;
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cmn').textContent=months[m]+' '+y;
+  const grid=document.getElementById('cg');grid.innerHTML='';
+  ['S','M','T','W','T','F','S'].forEach(d=>{const e=document.createElement('div');e.className='cdn';e.textContent=d;grid.appendChild(e);});
+  const fd=new Date(y,m,1).getDay(),dim=new Date(y,m+1,0).getDate(),pd=new Date(y,m,0).getDate();
+  for(let i=0;i<fd;i++)grid.appendChild(mkDay(new Date(y,m-1,pd-fd+i+1),true));
+  for(let d=1;d<=dim;d++)grid.appendChild(mkDay(new Date(y,m,d),false));
+  const rem=42-(fd+dim);for(let i=1;i<=rem;i++)grid.appendChild(mkDay(new Date(y,m+1,i),true));
+}
+function mkDay(dt,other){
+  const el=document.createElement('div');el.className='cd';el.textContent=dt.getDate();
+  const k=fmtKey(dt);
+  if(other)el.classList.add('om');
+  if(k===todayK)el.classList.add('td');
+  if(k===S.selectedDate)el.classList.add('sl');
+  if(S.entries[k])el.classList.add('he');
+  el.onclick=()=>{S.selectedDate=k;setSelectedDate(k);renderCalendar();sp('diary',document.querySelector('[data-page=diary]'));};
+  return el;
+}
+function changeMonth(dir){S.calMonth+=dir;if(S.calMonth<0){S.calMonth=11;S.calYear--;}if(S.calMonth>11){S.calMonth=0;S.calYear++;}renderCalendar();}
+
+// ── DIARY ──
+function setSelectedDate(key){
+  S.selectedDate=key;
+  const d=k2d(key);
+  document.getElementById('edn').textContent=d.getDate();
+  document.getElementById('edf').textContent=fmtFull(d);
+  const e=S.entries[key]||{};
+  document.getElementById('eti').value=e.title||'';
+  document.getElementById('eci').value=e.content||'';
+  document.getElementById('emd').textContent=e.mood||'🌤️';
+  S.mood=e.mood||'🌤️';S.tags=e.tags?[...e.tags]:[];
+  document.querySelectorAll('.tc').forEach(c=>c.classList.toggle('on',S.tags.includes(c.textContent.trim())));
+  renderEntryPhotos(e.photos||[]);updateWordCount();
+}
+function updateWordCount(){const t=document.getElementById('eci').value.trim();const w=t?t.split(/\s+/).length:0;document.getElementById('wc').textContent=w+(w===1?' word':' words');}
+function saveEntry(){
+  const key=S.selectedDate||todayK,title=document.getElementById('eti').value.trim(),content=document.getElementById('eci').value.trim();
+  if(!title&&!content){alert('Write something first 🌿');return;}
+  const ex=S.entries[key]||{};
+  S.entries[key]={key,title,content,mood:S.mood,tags:[...S.tags],photos:ex.photos||[],savedAt:new Date().toISOString()};
+  ss();renderPastEntries();renderCalendar();
+  const btn=document.querySelector('.ef .btn.pr'),orig=btn.textContent;
+  btn.textContent='✓ Saved';setTimeout(()=>btn.textContent=orig,1800);
+}
+function renderEntryPhotos(photos){
+  const c=document.getElementById('eph');c.innerHTML='';
+  photos.forEach(src=>{const img=document.createElement('img');img.className='pt';img.src=src;img.onclick=()=>viewPhoto(src);c.appendChild(img);});
+  const add=document.createElement('div');add.className='pa';add.textContent='+';add.title='Add photos';
+  add.onclick=()=>document.getElementById('pfu').click();c.appendChild(add);
+  const inp=document.createElement('input');inp.type='file';inp.id='pfu';inp.accept='image/*';inp.multiple=true;inp.style.display='none';inp.onchange=handlePhotos;c.appendChild(inp);
+}
+function handlePhotos(e){
+  const files=Array.from(e.target.files),key=S.selectedDate||todayK;
+  if(!S.entries[key])S.entries[key]={key,title:'',content:'',photos:[],tags:[],mood:'🌤️'};
+  let p=files.length;
+  files.forEach(f=>{const r=new FileReader();r.onload=ev=>{S.entries[key].photos.push(ev.target.result);p--;if(!p){ss();renderEntryPhotos(S.entries[key].photos);}};r.readAsDataURL(f);});
+}
+function toggleMoodPicker(){const p=document.getElementById('mpick');p.style.display=p.style.display==='none'?'flex':'none';}
+function setMood(m){S.mood=m;document.getElementById('emd').textContent=m;document.getElementById('mpick').style.display='none';}
+function toggleTag(el,tag){el.classList.toggle('on');if(S.tags.includes(tag))S.tags=S.tags.filter(t=>t!==tag);else S.tags.push(tag);}
+function renderPastEntries(){
+  const list=document.getElementById('pel'),msg=document.getElementById('nem');
+  const q=(document.getElementById('srch').value||'').toLowerCase();
+  let entries=Object.values(S.entries).sort((a,b)=>b.key.localeCompare(a.key));
+  if(q)entries=entries.filter(e=>(e.title+' '+e.content).toLowerCase().includes(q));
+  if(!entries.length){list.innerHTML='';msg.style.display='block';return;}
+  msg.style.display='none';
+  list.innerHTML=entries.map(e=>`<div class="pe" onclick="viewPastEntry('${e.key}')">
+    <div class="ped">${fmtFull(k2d(e.key))}</div>
+    <div class="pet">${e.title||'(untitled)'} ${e.mood||''}</div>
+    <div class="pep">${e.content||''}</div>
+    ${e.tags&&e.tags.length?`<div style="margin-top:5px;display:flex;gap:4px;flex-wrap:wrap;">${e.tags.map(t=>`<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:var(--sand);color:var(--olive-m);">${t}</span>`).join('')}</div>`:''}</div>`).join('');
+}
+function viewPastEntry(key){
+  const e=S.entries[key];if(!e)return;
+  document.getElementById('mo-en-h').textContent='📖 '+(e.title||'Entry');
+  document.getElementById('mec').innerHTML=`<div style="font-family:'Lora',serif;font-size:17px;font-weight:600;color:var(--olive);margin-bottom:5px;">${e.title||'(untitled)'}</div>
+    <div style="font-size:11px;color:var(--text-m);margin-bottom:12px;">${fmtFull(k2d(key))} · ${e.mood||'🌤️'}</div>
+    <div style="white-space:pre-wrap;line-height:1.8;">${e.content||''}</div>
+    ${e.photos&&e.photos.length?`<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:14px;">${e.photos.map(p=>`<img src="${p}" style="width:72px;height:72px;border-radius:8px;object-fit:cover;cursor:pointer;" onclick="viewPhoto('${p}')">`).join('')}</div>`:''}`;
+  document.getElementById('med-del').onclick=()=>{delete S.entries[key];ss();renderPastEntries();renderCalendar();closeModal('mo-en');};
+  openModal('mo-en');
+}
+function viewPhoto(src){document.getElementById('pvi').src=src;document.getElementById('pvw').classList.add('op');}
+
+// ── TODOS ──
+const dTodos=[{id:1,text:'Write in my diary today',priority:'med',done:false,date:todayK},{id:2,text:'Drink 8 glasses of water',priority:'high',done:false,date:todayK},{id:3,text:'Read for 20 minutes',priority:'low',done:false,date:''}];
+function eT(){if(!S.todos.length)S.todos=JSON.parse(JSON.stringify(dTodos));}
+
+function renderSidebarTodos(){
+  eT();const c=document.getElementById('sqt');
+  const its=S.todos.filter(t=>!t.done&&(!t.date||t.date===todayK)).slice(0,4);
+  c.innerHTML=its.map(t=>`<div class="qi"><div class="qc ${t.done?'dn':''}" onclick="toggleTodo(${t.id})"></div><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.text}</span></div>`).join('')||'<div style="font-size:11.5px;color:var(--text-m);padding:8px 16px;font-style:italic;">All clear today 🎉</div>';
+}
+
+function renderTodoPage(){
+  eT();
+  const d=k2d(S.todoDate);
+  document.getElementById('tdd').textContent=d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  document.getElementById('tdf').textContent=d.getFullYear();
+  // update inline add row date hint
+  document.getElementById('inline-task-input').placeholder='Add a task for '+d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+'…';
+
+  const c=document.getElementById('tss');
+  const forDate=S.todos.filter(t=>t.date===S.todoDate);
+  const undated=S.todoDate===todayK?S.todos.filter(t=>!t.date):[];
+  const all=[...forDate,...undated];
+  const pending=all.filter(t=>!t.done),done=all.filter(t=>t.done);
+  if(!all.length){c.innerHTML=`<div style="text-align:center;padding:30px 0;color:var(--text-m);font-size:13px;font-style:italic;">No tasks for this day yet.</div>`;return;}
+  c.innerHTML=`<div class="tsth">Pending <span style="font-size:11px;font-weight:400;color:var(--text-m);">${pending.length}</span></div>
+    ${pending.length?pending.map(todoH).join(''):'<div style="font-size:12.5px;color:var(--text-m);font-style:italic;padding:8px 0;">All done ✦</div>'}
+    ${done.length?`<div class="tsth" style="margin-top:18px;opacity:.7;">Done <span style="font-size:11px;font-weight:400;">${done.length}</span></div>${done.map(todoH).join('')}`:''}`;
+}
+
+function todoH(t){
+  return`<div class="tfi"><div class="tfc ${t.done?'dn':''}" onclick="toggleTodo(${t.id})">${t.done?'&#10003;':''}</div><span class="tft ${t.done?'dn':''}">${t.text}</span><span class="tp ${t.priority}">${{high:'urgent',med:'medium',low:'relaxed'}[t.priority]}</span><button class="ibtn" onclick="openEditTodo(${t.id})" title="Edit">✏</button></div>`;
+}
+
+function inlineAddTask(){
+  const text=document.getElementById('inline-task-input').value.trim();if(!text)return;
+  const priority=document.getElementById('inline-task-pri').value;
+  S.todos.unshift({id:Date.now(),text,priority,done:false,date:S.todoDate});
+  document.getElementById('inline-task-input').value='';
+  ss();renderSidebarTodos();renderTodoPage();renderWeekPlanner();
+}
+
+function shiftDay(dir){const d=k2d(S.todoDate);d.setDate(d.getDate()+dir);S.todoDate=fmtKey(d);renderTodoPage();renderWeekPlanner();}
+function jumpToday(){S.todoDate=todayK;S.weekOffset=0;renderTodoPage();renderWeekPlanner();}
+function toggleTodo(id){const t=S.todos.find(t=>t.id===id);if(t){t.done=!t.done;ss();renderSidebarTodos();renderTodoPage();renderWeekPlanner();}}
+
+let editTodoId=null;
+function openEditTodo(id){
+  const t=S.todos.find(t=>t.id===id);if(!t)return;
+  editTodoId=id;document.getElementById('mo-td-h').textContent='✏️ Edit Task';
+  document.getElementById('tnt').value=t.text;document.getElementById('tnp').value=t.priority;document.getElementById('tnd').value=t.date||'';
+  openModal('mo-td');
+}
+function saveTodoEdit(){
+  const text=document.getElementById('tnt').value.trim();if(!text)return;
+  const t=S.todos.find(t=>t.id===editTodoId);
+  if(t){t.text=text;t.priority=document.getElementById('tnp').value;t.date=document.getElementById('tnd').value||'';}
+  editTodoId=null;ss();renderSidebarTodos();renderTodoPage();renderWeekPlanner();closeModal('mo-td');
+}
+
+// ── WEEKLY PLANNER ──
+function getWeekDays(){
+  // Get Monday of current week + weekOffset
+  const base=new Date(today);
+  const dow=base.getDay()===0?6:base.getDay()-1; // days since Monday
+  base.setDate(base.getDate()-dow+S.weekOffset*7);
+  return Array.from({length:7},(_,i)=>{const d=new Date(base);d.setDate(base.getDate()+i);return d;});
+}
+
+function renderWeekPlanner(){
+  eT();
+  const days=getWeekDays();
+  const first=days[0],last=days[6];
+  const fmt=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  document.getElementById('week-label').textContent=fmt(first)+' – '+fmt(last);
+  const dayNames=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const container=document.getElementById('week-days');
+  container.innerHTML='';
+  days.forEach((d,i)=>{
+    const k=fmtKey(d);
+    const isToday=k===todayK;
+    const isSelected=k===S.todoDate;
+    const tasks=S.todos.filter(t=>t.date===k||(k===todayK&&!t.date));
+    const pending=tasks.filter(t=>!t.done);
+
+    const wd=document.createElement('div');
+    wd.className='wd'+(isToday?' today-week':'');
+
+    const head=document.createElement('div');
+    head.className='wd-head';
+    head.innerHTML=`<span class="wd-label" style="${isSelected?'color:var(--olive);font-weight:600;':''}">${dayNames[i]} <span style="font-size:10px;font-weight:400;color:var(--text-m);">${fmtMD(d)}</span></span>${tasks.length?`<span class="wd-count">${pending.length}/${tasks.length}</span>`:''}`;
+    head.onclick=()=>{S.todoDate=k;renderTodoPage();renderWeekPlanner();};
+    wd.appendChild(head);
+
+    if(tasks.length){
+      const body=document.createElement('div');body.className='wd-tasks';
+      tasks.slice(0,3).forEach(t=>{
+        const row=document.createElement('div');row.className='wd-task';
+        row.innerHTML=`<span class="wd-dot ${t.priority}"></span><span class="wd-task-text ${t.done?'dn':''}">${t.text}</span>`;
+        body.appendChild(row);
+      });
+      if(tasks.length>3){const more=document.createElement('div');more.className='wd-add';more.textContent=`+${tasks.length-3} more`;more.onclick=()=>{S.todoDate=k;renderTodoPage();};body.appendChild(more);}
+      wd.appendChild(body);
+    } else {
+      const body=document.createElement('div');body.className='wd-tasks';
+      const em=document.createElement('div');em.className='wd-empty';em.textContent='No tasks';
+      body.appendChild(em);wd.appendChild(body);
+    }
+    container.appendChild(wd);
+  });
+}
+
+function shiftWeek(dir){S.weekOffset+=dir;renderWeekPlanner();}
+
+// ── GOALS ──
+const dGoals=[{id:1,cat:'health',title:'Exercise 3x a week',desc:'Build consistency, not intensity.',progress:30},{id:2,cat:'personal',title:'Read 12 books',desc:'One book a month, any genre.',progress:16},{id:3,cat:'career',title:'Learn a new skill',desc:'Something that genuinely excites me.',progress:50},{id:4,cat:'fun',title:'Travel somewhere new',desc:'Even a short trip counts.',progress:0}];
+const catE={health:'🌿',personal:'🌸',career:'💼',fun:'🎨'};
+function eG(){if(!S.goals.length)S.goals=JSON.parse(JSON.stringify(dGoals));}
+function renderSidebarGoals(){eG();const c=document.getElementById('sgl');c.innerHTML=S.goals.slice(0,3).map(g=>`<div style="margin-bottom:9px;"><div style="font-size:11.5px;color:var(--text-s);margin-bottom:3px;">${catE[g.cat]} ${g.title}</div><div class="qb"><div class="qbf" style="width:${g.progress}%"></div></div><div style="font-size:10px;color:var(--text-m);text-align:right;">${g.progress}%</div></div>`).join('');}
+function renderGoals(){
+  eG();const grid=document.getElementById('ggl');
+  grid.innerHTML=S.goals.map(g=>`<div class="gc"><div class="gcat ${g.cat}">${catE[g.cat]} ${g.cat}</div><div class="gtt">${g.title}</div><div class="gds">${g.desc}</div><div class="gpb"><div class="gpf ${g.cat}" style="width:${g.progress}%"></div></div><div class="gpl"><span>${g.progress}% complete</span></div><div class="g-acts"><button class="gab" onclick="openEditGoal(${g.id})">✏️ Edit</button><button class="gab" onclick="nudgeGoal(${g.id})">📊 Progress</button><button class="gab del" onclick="deleteGoal(${g.id})">Delete</button></div></div>`).join('')+`<div style="background:transparent;border-radius:var(--r);border:2px dashed var(--border-s);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;cursor:pointer;color:var(--text-m);min-height:160px;transition:all .15s;" onmouseover="this.style.borderColor='var(--moss)';this.style.color='var(--olive)'" onmouseout="this.style.borderColor='var(--border-s)';this.style.color='var(--text-m)'" onclick="openNewGoal()"><span style="font-size:22px;">✦</span><span style="font-size:12.5px;">Add a new goal</span></div>`;
+}
+let editGoalId=null;
+function openNewGoal(){editGoalId=null;document.getElementById('mo-gl-h').textContent='✨ New Goal';document.getElementById('gnc').value='health';document.getElementById('gnt').value='';document.getElementById('gnd').value='';document.getElementById('gnp').value='0';openModal('mo-gl');}
+function openEditGoal(id){const g=S.goals.find(g=>g.id===id);if(!g)return;editGoalId=id;document.getElementById('mo-gl-h').textContent='✏️ Edit Goal';document.getElementById('gnc').value=g.cat;document.getElementById('gnt').value=g.title;document.getElementById('gnd').value=g.desc;document.getElementById('gnp').value=g.progress;openModal('mo-gl');}
+function saveGoal(){
+  const title=document.getElementById('gnt').value.trim();if(!title)return;
+  const cat=document.getElementById('gnc').value,desc=document.getElementById('gnd').value.trim(),progress=Math.min(100,Math.max(0,parseInt(document.getElementById('gnp').value)||0));
+  if(editGoalId){const g=S.goals.find(g=>g.id===editGoalId);if(g){g.cat=cat;g.title=title;g.desc=desc;g.progress=progress;}}
+  else S.goals.push({id:Date.now(),cat,title,desc,progress});
+  editGoalId=null;ss();renderGoals();renderSidebarGoals();closeModal('mo-gl');
+}
+function nudgeGoal(id){const g=S.goals.find(g=>g.id===id);if(!g)return;const v=prompt('Update progress for "'+g.title+'" (0-100):',g.progress);if(v!==null){g.progress=Math.min(100,Math.max(0,parseInt(v)||0));ss();renderGoals();renderSidebarGoals();}}
+function deleteGoal(id){if(!confirm('Delete this goal?'))return;S.goals=S.goals.filter(g=>g.id!==id);ss();renderGoals();renderSidebarGoals();}
+
+// ── NOTES ──
+const noteE={aff:'💜',rec:'🍵',mov:'🎬',gen:'📝'};
+const dNotes=[{id:1,type:'aff',title:'I am enough',content:'I am worthy of love and belonging. I am growing every day, even when it does not feel like it.',date:todayK},{id:2,type:'mov',title:'The Secret Life of Walter Mitty',content:'A quiet film about courage and living life fully.',date:todayK},{id:3,type:'rec',title:'Chamomile Honey Latte',content:'Brew chamomile tea strong. Add warm oat milk, a spoonful of honey and a pinch of cinnamon. Perfect for slow evenings.',date:todayK}];
+function eN(){if(!S.notes.length)S.notes=JSON.parse(JSON.stringify(dNotes));}
+function renderNotes(){
+  eN();const grid=document.getElementById('ngl');
+  const f=S.notesFilter==='all'?S.notes:S.notes.filter(n=>n.type===S.notesFilter);
+  grid.innerHTML=f.map(n=>`<div class="nc ${n.type}" onclick="viewNote(${n.id})"><div class="nci">${noteE[n.type]}</div><div class="nct">${n.title}</div><div class="ncp">${n.content}</div><div class="ncd">${fmtShort(k2d(n.date))}</div></div>`).join('')+`<div class="nadd" onclick="openModal('mo-nt')"><span style="font-size:22px;">+</span><span>Add note</span></div>`;
+}
+function filterNotes(t,el){S.notesFilter=t;document.querySelectorAll('.ntb').forEach(x=>x.classList.remove('on'));el.classList.add('on');renderNotes();}
+function addNote(){const title=document.getElementById('nntl').value.trim();if(!title)return;S.notes.unshift({id:Date.now(),type:document.getElementById('nnt').value,title,content:document.getElementById('nntc').value.trim(),date:todayK});ss();renderNotes();closeModal('mo-nt');document.getElementById('nntl').value='';document.getElementById('nntc').value='';}
+function viewNote(id){const n=S.notes.find(n=>n.id===id);if(!n)return;document.getElementById('mo-en-h').textContent=noteE[n.type]+' '+n.title;document.getElementById('mec').innerHTML=`<div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-m);margin-bottom:5px;">${n.type}</div><div style="font-family:'Lora',serif;font-size:17px;font-weight:600;color:var(--olive);margin-bottom:10px;">${n.title}</div><div style="white-space:pre-wrap;font-size:13.5px;line-height:1.8;color:var(--text-s);">${n.content}</div>`;document.getElementById('med-del').onclick=()=>{S.notes=S.notes.filter(x=>x.id!==id);ss();renderNotes();closeModal('mo-en');};openModal('mo-en');}
+
+// ── PROFILE + ABOUT ──
+function syncProfile(){
+  const p=S.profile;
+  document.getElementById('pn').textContent=p.name;
+  document.getElementById('pt2').textContent=p.tag;
+  document.getElementById('about-name-d').textContent=p.name;
+  document.getElementById('about-bio-d').textContent=p.bio||'Click "Edit Profile" to write about yourself — your story, your values, what makes you, you.';
+  const meta=[];if(p.location)meta.push('📍 <span>'+p.location+'</span>');if(p.birthday)meta.push('🎂 <span>'+p.birthday+'</span>');
+  document.getElementById('about-meta-d').innerHTML=meta.join('');
+  const img=document.getElementById('about-ava-img'),emoji=document.getElementById('about-ava-emoji');
+  const sbImg=document.getElementById('sb-ava-img'),sbEmoji=document.getElementById('sb-ava-emoji');
+  if(p.avaPhoto){img.src=p.avaPhoto;img.style.display='block';emoji.style.display='none';sbImg.src=p.avaPhoto;sbImg.style.display='block';sbEmoji.style.display='none';}
+  else{img.style.display='none';emoji.style.display='block';sbImg.style.display='none';sbEmoji.style.display='block';}
+}
+function handleAvaPhoto(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{S.profile.avaPhoto=ev.target.result;ss();syncProfile();};r.readAsDataURL(f);}
+function openProfileEdit(){const p=S.profile;document.getElementById('pni').value=p.name;document.getElementById('pti').value=p.tag;document.getElementById('pbi').value=p.bio||'';document.getElementById('plo').value=p.location||'';document.getElementById('pbd').value=p.birthday||'';openModal('mo-pr');}
+function saveProfile(){S.profile.name=document.getElementById('pni').value.trim()||'Your Name';S.profile.tag=document.getElementById('pti').value.trim()||'';S.profile.bio=document.getElementById('pbi').value.trim();S.profile.location=document.getElementById('plo').value.trim();S.profile.birthday=document.getElementById('pbd').value.trim();ss();syncProfile();closeModal('mo-pr');}
+
+// ── ABOUT — PEOPLE ──
+function renderAbout(){['family','loved','pets'].forEach(g=>renderGroup(g));}
+function renderGroup(group){
+  const grid=document.getElementById('g-'+group);if(!grid)return;
+  const people=S.people.filter(p=>p.group===group);
+  const addIcon=group==='pets'?'🐾':group==='loved'?'💕':'👨‍👩‍👧‍👦';
+  const addLabel=group==='family'?'+ Add Family Member':group==='loved'?'+ Add Loved One':'+ Add Pet';
+  grid.innerHTML=people.map(p=>personHTML(p)).join('')+`<div class="add-card" onclick="openAddPerson('${group}')"><span style="font-size:24px;">${addIcon}</span><span>${addLabel}</span></div>`;
+  people.forEach(p=>{const inp=document.getElementById('pup-'+p.id);if(inp)inp.onchange=(e)=>handlePersonPhoto(e,p.id);});
+}
+function personHTML(p){
+  const photos=p.photos||[];
+  return`<div class="pcard"><div class="pcard-photos">${photos.map(s=>`<img class="pcp" src="${s}" onclick="viewPhoto('${s}')">`).join('')}<div class="pcp-add" onclick="document.getElementById('pup-${p.id}').click()">+</div><input type="file" id="pup-${p.id}" accept="image/*" multiple style="display:none;"></div><div class="pcard-name">${p.name}</div><div class="pcard-role">${p.role||''}</div><div class="pcard-note">${p.note||''}</div><div class="pcard-btns"><button class="pc-btn" onclick="openEditPerson(${p.id})">✏️ Edit</button><button class="pc-btn del" onclick="deletePerson(${p.id})">Remove</button></div></div>`;
+}
+function handlePersonPhoto(e,id){
+  const files=Array.from(e.target.files),person=S.people.find(p=>p.id===id);if(!person)return;
+  person.photos=person.photos||[];let pend=files.length;
+  files.forEach(f=>{const r=new FileReader();r.onload=ev=>{person.photos.push(ev.target.result);pend--;if(!pend){ss();renderAbout();}};r.readAsDataURL(f);});
+}
+let editPersonId=null;
+function openAddPerson(group){editPersonId=null;document.getElementById('mo-person-h').textContent='🌸 Add Person';document.getElementById('person-group').value=group||'family';document.getElementById('person-name').value='';document.getElementById('person-role').value='';document.getElementById('person-note').value='';openModal('mo-person');}
+function openEditPerson(id){const p=S.people.find(p=>p.id===id);if(!p)return;editPersonId=id;document.getElementById('mo-person-h').textContent='✏️ Edit';document.getElementById('person-group').value=p.group;document.getElementById('person-name').value=p.name;document.getElementById('person-role').value=p.role||'';document.getElementById('person-note').value=p.note||'';openModal('mo-person');}
+function savePerson(){
+  const name=document.getElementById('person-name').value.trim();if(!name)return;
+  if(editPersonId){const p=S.people.find(p=>p.id===editPersonId);if(p){p.group=document.getElementById('person-group').value;p.name=name;p.role=document.getElementById('person-role').value.trim();p.note=document.getElementById('person-note').value.trim();}}
+  else S.people.push({id:Date.now(),group:document.getElementById('person-group').value,name,role:document.getElementById('person-role').value.trim(),note:document.getElementById('person-note').value.trim(),photos:[]});
+  editPersonId=null;ss();renderAbout();closeModal('mo-person');
+}
+function deletePerson(id){if(!confirm('Remove this person?'))return;S.people=S.people.filter(p=>p.id!==id);ss();renderAbout();}
+
+// ── MODALS ──
+function openModal(id){document.getElementById(id).classList.add('op');}
+function closeModal(id){document.getElementById(id).classList.remove('op');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.ov.op').forEach(m=>m.classList.remove('op'));});
+
+init();
+</script>
+</body>
+</html>
